@@ -7,7 +7,9 @@ class Pipeline:
         self.outlier_detection_alg = outlier_detection_alg
         self.classification_alg = classification_alg
 
-    def fit(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        self.cl = None
+
+    def fit(self, X_t: np.ndarray, y_t: np.ndarray) -> None:
         # clustering
         if self.clustering_alg:
             cl = Clustering(self.clustering_alg, 2)
@@ -24,6 +26,16 @@ class Pipeline:
             X_t, y_t = od.transform(X_t, y_t)
 
         # classification
-        cl = Classification(self.classification_alg)
+        self.cl = Classification(self.classification_alg)
 
-        return X_t, y_t
+    
+    def predict(self, X_t: np.ndarray) -> np.ndarray:
+        return self.cl.predict(X_t)
+    
+    def score(self, X_t: np.ndarray, y_t: np.ndarray) -> float:
+        return self.cl.score(X_t, y_t)
+    
+    def cross_validate(self, X_t: np.ndarray, y_t: np.ndarray, n_splits: int = 5) -> np.ndarray:
+        from sklearn.model_selection import cross_val_score
+
+        return cross_val_score(self.cl, X_t, y_t, cv=n_splits)

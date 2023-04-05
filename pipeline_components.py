@@ -1,6 +1,43 @@
 import numpy as np
 from typing import Literal
 
+class Clustering:
+    def __init__(self, algorithm: Literal['kmeans', 'agglomerative'], n_clusters: int):
+        self.algorithm = algorithm
+        self.n_clusters = n_clusters
+        self.mapping = {
+            "kmeans": self.kmeans,
+            "agglomerative": self.agglomerative
+        }
+
+    def transform(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        return self.mapping[self.algorithm](X_t, y_t)
+
+    def kmeans(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        from sklearn.cluster import KMeans
+
+        kmeans = KMeans(n_clusters=self.n_clusters, random_state=0).fit(X_t)
+        y_pred = kmeans.predict(X_t)
+
+        # removing outliers
+        X_t_kmeans = X_t[y_pred == 1]
+        y_t_kmeans = y_t[y_pred == 1]
+
+        return X_t_kmeans, y_t_kmeans
+
+    def agglomerative(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        from sklearn.cluster import AgglomerativeClustering
+
+        agg = AgglomerativeClustering(n_clusters=self.n_clusters).fit(X_t)
+        y_pred = agg.labels_
+
+        # removing outliers
+        X_t_agg = X_t[y_pred == 1]
+        y_t_agg = y_t[y_pred == 1]
+
+        return X_t_agg, y_t_agg
+
+
 class OutlierDetection:
     def __init__(self, algorithm: Literal['isolation_forest', 'lof']):
         self.algorithm = algorithm
