@@ -92,24 +92,24 @@ class DimReduction:
             "lda": self.lda
         }
 
-    def transform(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def transform(self, X_t: np.ndarray, y_t: np.ndarray) -> np.ndarray:
         return self.mapping[self.algorithm](X_t, y_t)
 
-    def pca(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def pca(self, X_t: np.ndarray, y_t: np.ndarray) -> np.ndarray:
         from sklearn.decomposition import PCA
 
         pca = PCA(n_components=self.n_components)
         X_t_pca = pca.fit_transform(X_t)
 
-        return X_t_pca, y_t
+        return X_t_pca
     
-    def lda(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def lda(self, X_t: np.ndarray, y_t: np.ndarray) -> np.ndarray:
         from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
         lda = LinearDiscriminantAnalysis()
         X_t_lda = lda.fit_transform(X_t, y_t)
 
-        return X_t_lda, y_t
+        return X_t_lda
     
 
 class Classification:
@@ -121,8 +121,6 @@ class Classification:
             "knn": self.knn,
             "logistic" : self.logistic
         }
-
-        self.clf = None
 
     def rf(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.ensemble import RandomForestClassifier
@@ -150,4 +148,7 @@ class Classification:
     
     def predict(self, X_t: np.ndarray) -> np.ndarray:
         return self.clf.predict(X_t)
+    
+    def return_model(self):
+        return self.clf
     
