@@ -1,7 +1,8 @@
 import numpy as np
+from typing import Literal
 
 class OutlierDetection:
-    def __init__(self, algorithm: str):
+    def __init__(self, algorithm: Literal['isolation_forest', 'lof']):
         self.algorithm = algorithm
         self.mapping = {
             "isolation_forest": self.isolation_forest,
@@ -46,7 +47,7 @@ class OutlierDetection:
 
 
 class DimReduction:
-    def __init__(self, algorithm: str, n_components: int):
+    def __init__(self, algorithm: Literal['pca', 'lda'], n_components: int):
         self.algorithm = algorithm
         self.n_components = n_components
         self.mapping = {
@@ -72,3 +73,44 @@ class DimReduction:
         X_t_lda = lda.fit_transform(X_t, y_t)
 
         return X_t_lda, y_t
+    
+
+class Classification:
+
+    def __init__(self, algorithm: Literal["rf", "knn", "logistic"]):
+        self.algorithm = algorithm
+        self.mapping = {
+            "rf": self.rf,
+            "knn": self.knn,
+            "logistic" : self.logistic
+        }
+
+        self.clf = None
+
+    def rf(self, X_t: np.ndarray, y_t: np.ndarray):
+        from sklearn.ensemble import RandomForestClassifier
+
+        clf = RandomForestClassifier()
+        clf.fit(X_t, y_t)
+        return clf
+    
+    def knn(self, X_t: np.ndarray, y_t: np.ndarray):
+        from sklearn.neighbors import KNeighborsClassifier
+
+        clf = KNeighborsClassifier()
+        clf.fit(X_t, y_t)
+        return clf
+
+    def logistic(self, X_t: np.ndarray, y_t: np.ndarray):
+        from sklearn.linear_model import LogisticRegression
+
+        clf = LogisticRegression()
+        clf.fit(X_t, y_t)
+        return clf
+    
+    def fit(self, X_t: np.ndarray, y_t: np.ndarray):
+        self.clf = self.mapping[self.algorithm](X_t, y_t)
+    
+    def predict(self, X_t: np.ndarray) -> np.ndarray:
+        return self.clf.predict(X_t)
+    
