@@ -98,8 +98,8 @@ class DimReduction:
     def pca(self, X_t: np.ndarray, y_t: np.ndarray) -> np.ndarray:
         from sklearn.decomposition import PCA
 
-        pca = PCA(n_components=self.n_components)
-        X_t_pca = pca.fit_transform(X_t)
+        pca = PCA(n_components=415)
+        X_t_pca = pca.fit_transform(X_t)    
 
         return X_t_pca
     
@@ -142,7 +142,7 @@ class Classification:
         clf = LogisticRegression()
         clf.fit(X_t, y_t)
         return clf
-    
+        
     def fit(self, X_t: np.ndarray, y_t: np.ndarray):
         self.clf = self.mapping[self.algorithm](X_t, y_t)
     
@@ -151,4 +151,34 @@ class Classification:
     
     def return_model(self):
         return self.clf
+
+class Ensemble:
+
+    def __init__(self, cl, algorithm: Literal["bagging", "boosting"]):
+        self.algorithm = algorithm
+        self.cl = cl
+        self.mapping = {
+            "bagging": self.bagging,
+            "boosting": self.boosting
+        }
+        self.ensemble_cl = None
+
+    def bagging(self, X_t: np.ndarray, y_t: np.ndarray):
+        from sklearn.ensemble import BaggingClassifier
+
+        clf = BaggingClassifier(self.cl, n_estimators=10, random_state=0)
+        clf.fit(X_t, y_t)
+        return clf
     
+    def boosting(self, X_t: np.ndarray, y_t: np.ndarray):
+        from sklearn.ensemble import AdaBoostClassifier
+
+        clf = AdaBoostClassifier(self.cl, n_estimators=10, random_state=0)
+        clf.fit(X_t, y_t)
+        return clf
+
+    def fit(self, X_t: np.ndarray, y_t: np.ndarray):
+        self.ensemble_cl = self.mapping[self.algorithm](X_t, y_t)
+    
+    def return_model(self):
+        return self.ensemble_cl
