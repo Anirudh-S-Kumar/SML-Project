@@ -12,8 +12,7 @@ test_data = pd.read_csv('data/test.csv')
 
 pipeline = mc.Pipeline(
     clustering_alg=None,
-    dim_reduction_alg_1="pca",
-    dim_reduction_alg_2="lda",
+    dim_reduction_algs=[("pca", 100)],
     outlier_detection_alg=None,
     classification_alg="logistic",
     ensemble_alg=None
@@ -23,4 +22,4 @@ print("Pipeline done")
 cv_scores = pipeline.cross_validate(X_t, y_t)
 print(f"Cross validation scores: {cv_scores}")
 
-pipeline.generate_submission(test_data)
+# pipeline.generate_submission(test_data)
