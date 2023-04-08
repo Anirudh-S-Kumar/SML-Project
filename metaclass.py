@@ -5,24 +5,21 @@ import numpy as np
 class Pipeline:
     def __init__(self, 
             clustering_alg: str, 
-            dim_reduction_alg_1: str, 
-            dim_reduction_alg_2: str,
+            dim_reduction_algs: list[tuple[str, int]], 
             outlier_detection_alg: str, 
             classification_alg: str, 
-            ensemble_alg: str = None
+            ensemble_algs: list[str] = None
             ):
-        
+        """"""
         self.clustering_alg = clustering_alg
-        self.dim_reduction_alg_1 = dim_reduction_alg_1
-        self.dim_reduction_alg_2 = dim_reduction_alg_2
+        self.dim_reduction_algs = dim_reduction_algs
         self.outlier_detection_alg = outlier_detection_alg
         self.classification_alg = classification_alg
-        self.ensemble_alg = ensemble_alg
+        self.ensemble_algs = ensemble_algs
 
         self.standardizer = None
         self.cl = None
-        self.dim_red_1 = None
-        self.dim_red_2 = None
+        self.dim_red_objs = []
 
     # def standardize(X_t: np.ndarray) -> np.ndarray:
     #     from sklearn.preprocessing import StandardScaler
@@ -45,16 +42,13 @@ class Pipeline:
             X_t, y_t = cl.transform(X_t, y_t)
 
         # dimensionality reduction
-        print(f"Currently at dim reduction: {self.dim_reduction_alg_1}")
-        if self.dim_reduction_alg_1:
-            dr = pc.DimReduction(self.dim_reduction_alg_1, 100)
-            X_t = dr.transform(X_t, y_t)
-            self.dim_red_1 = dr
-        print(f"Currently at dim reduction: {self.dim_reduction_alg_2}")
-        if self.dim_reduction_alg_2:
-            dr = pc.DimReduction(self.dim_reduction_alg_2, 16)
-            X_t = dr.transform(X_t, y_t)
-            self.dim_red_2 = dr
+        print(f"Currently at dim reduction")
+
+        if self.dim_reduction_algs:
+            for alg, n_components in self.dim_reduction_algs:
+                dr = pc.DimReduction(alg, n_components)
+                X_t = dr.transform(X_t, y_t)
+                self.dim_red_objs.append(dr)
 
         # outlier detection
         print(f"Currently at outlier removal: {self.outlier_detection_alg}")
@@ -69,11 +63,12 @@ class Pipeline:
         self.cl = clfs.return_model()
 
         # ensemble
-        print(f"Currently at endsembling: {self.ensemble_alg}")
-        if self.ensemble_alg:
-            ensemble = pc.Ensemble(self.cl, self.ensemble_alg)
-            ensemble.fit(X_t, y_t)
-            self.cl = ensemble.return_model()
+        print(f"Currently at endsembling")
+        if self.ensemble_algs:
+            for alg in self.ensemble_algs:
+                ensemble = pc.Ensemble(self.cl, alg)
+                ensemble.fit(X_t, y_t)
+                self.cl = ensemble.return_model()
 
         print("Done!")
     
@@ -97,11 +92,14 @@ class Pipeline:
         X_test = self.standardizer.transform(X_test)
         # X_test = standardize(X_test)
         
-        if self.dim_reduction_alg_1:
-            X_test = self.dim_red_1.dim_red.transform(X_test)
-        if self.dim_reduction_alg_2:
-            X_test = self.dim_red_2.dim_red.transform(X_test)
+        # if self.dim_reduction_alg_1:
+        #     X_test = self.dim_red_1.dim_red.transform(X_test)
+        # if self.dim_reduction_alg_2:
+        #     X_test = self.dim_red_2.dim_red.transform(X_test)
             # X_test = pc.DimReduction(self.dim_reduction_alg, 100).transform(X_test, None)
+        if self.dim_reduction_algs:
+            for dr in self.dim_red_objs:
+                X_test = dr.dim_red.transform(X_test)
 
         y_pred = self.predict(X_test)
 

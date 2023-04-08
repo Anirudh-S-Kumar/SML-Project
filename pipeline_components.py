@@ -122,14 +122,18 @@ class DimReduction:
         from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
         lda = LinearDiscriminantAnalysis()
-        X_t_lda = lda.fit_transform(X_t, y_t)
+
+        if y_t is not None:
+            X_t_lda = lda.fit_transform(X_t, y_t)
+        else:
+            X_t_lda = lda.fit_transform(X_t)
         self.dim_red = lda
 
         return X_t_lda
     
 
 class Classification:
-    def __init__(self, algorithm: Literal["rf", "knn", "logistic", "qda", "mlp"]):
+    def __init__(self, algorithm: Literal["rf", "knn", "logistic", "mlp"]):
         self.algorithm = algorithm
         self.mapping = {
             "rf": self.rf,
@@ -144,6 +148,7 @@ class Classification:
         clf = RandomForestClassifier()
         clf.fit(X_t, y_t)
         return clf
+
     
     def knn(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.neighbors import KNeighborsClassifier
@@ -183,15 +188,15 @@ class Classification:
         return self.clf
 
 class Ensemble:
-
-    def __init__(self, cl, algorithm: Literal["bagging", "boosting"]):
+    def __init__(self, cl, algorithm: Literal["bagging", "adaboost"]):
         self.algorithm = algorithm
         self.cl = cl
         self.mapping = {
             "bagging": self.bagging,
-            "boosting": self.boosting
+            "adaboost": self.adaboost,
         }
         self.ensemble_cl = None
+
 
     def bagging(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.ensemble import BaggingClassifier
@@ -200,7 +205,7 @@ class Ensemble:
         clf.fit(X_t, y_t)
         return clf
     
-    def boosting(self, X_t: np.ndarray, y_t: np.ndarray):
+    def adaboost(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.ensemble import AdaBoostClassifier
 
         clf = AdaBoostClassifier(self.cl, n_estimators=10, random_state=0)
