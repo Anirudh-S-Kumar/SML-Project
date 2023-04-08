@@ -98,9 +98,9 @@ class Pipeline:
         # X_test = standardize(X_test)
         
         if self.dim_reduction_alg_1:
-            X_test = self.dim_red_1.transform(X_test, None)
+            X_test = self.dim_red_1.dim_red.transform(X_test)
         if self.dim_reduction_alg_2:
-            X_test = self.dim_red_2.transform(X_test, None)
+            X_test = self.dim_red_2.dim_red.transform(X_test)
             # X_test = pc.DimReduction(self.dim_reduction_alg, 100).transform(X_test, None)
 
         y_pred = self.predict(X_test)
