@@ -1,6 +1,19 @@
 import numpy as np
 from typing import Literal
 
+class Standardizer:
+    def __init__(self):
+        self.scaler = None
+
+    def fit(self, X_t: np.ndarray) -> None:
+        from sklearn.preprocessing import StandardScaler
+        scaler = StandardScaler()
+        X_t = scaler.fit(X_t)
+        self.scaler = scaler
+
+    def transform(self, X_t: np.ndarray) -> np.ndarray:
+        return self.scaler.transform(X_t)
+    
 class Clustering:
     def __init__(self, algorithm: Literal['kmeans', 'agglomerative'], n_clusters: int):
         self.algorithm = algorithm
@@ -91,6 +104,7 @@ class DimReduction:
             "pca": self.pca,
             "lda": self.lda
         }
+        self.dim_red = None
 
     def transform(self, X_t: np.ndarray, y_t: np.ndarray) -> np.ndarray:
         return self.mapping[self.algorithm](X_t, y_t)
@@ -98,8 +112,9 @@ class DimReduction:
     def pca(self, X_t: np.ndarray, y_t: np.ndarray) -> np.ndarray:
         from sklearn.decomposition import PCA
 
-        pca = PCA(n_components=415)
-        X_t_pca = pca.fit_transform(X_t)    
+        pca = PCA(n_components=self.n_components)
+        X_t_pca = pca.fit_transform(X_t)  
+        self.dim_red = pca
 
         return X_t_pca
     
@@ -108,18 +123,19 @@ class DimReduction:
 
         lda = LinearDiscriminantAnalysis()
         X_t_lda = lda.fit_transform(X_t, y_t)
+        self.dim_red = lda
 
         return X_t_lda
     
 
 class Classification:
-
-    def __init__(self, algorithm: Literal["rf", "knn", "logistic"]):
+    def __init__(self, algorithm: Literal["rf", "knn", "logistic", "qda", "mlp"]):
         self.algorithm = algorithm
         self.mapping = {
             "rf": self.rf,
             "knn": self.knn,
-            "logistic" : self.logistic
+            "logistic" : self.logistic,
+            "mlp": self.mlp
         }
 
     def rf(self, X_t: np.ndarray, y_t: np.ndarray):
@@ -139,7 +155,21 @@ class Classification:
     def logistic(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.linear_model import LogisticRegression
 
-        clf = LogisticRegression()
+        clf = LogisticRegression(max_iter=1000)
+        clf.fit(X_t, y_t)
+        return clf
+    
+    # def qda(self, X_t: np.ndarray, y_t: np.ndarray):
+    #     from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
+    #     clf = QuadraticDiscriminantAnalysis()
+    #     clf.fit(X_t, y_t)
+    #     return clf
+    
+    def mlp(self, X_t: np.ndarray, y_t: np.ndarray):
+        from sklearn.neural_network import MLPClassifier
+
+        clf = MLPClassifier()
         clf.fit(X_t, y_t)
         return clf
         
