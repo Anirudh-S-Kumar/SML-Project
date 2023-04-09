@@ -133,13 +133,14 @@ class DimReduction:
     
 
 class Classification:
-    def __init__(self, algorithm: Literal["rf", "knn", "logistic", "mlp"]):
+    def __init__(self, algorithm: Literal["rf", "knn", "logistic", "mlp", "naive_bayes"]):
         self.algorithm = algorithm
         self.mapping = {
             "rf": self.rf,
             "knn": self.knn,
             "logistic" : self.logistic,
-            "mlp": self.mlp
+            "mlp": self.mlp,
+            "naive_bayes": self.naive_bayes
         }
 
     def rf(self, X_t: np.ndarray, y_t: np.ndarray):
@@ -160,7 +161,14 @@ class Classification:
     def logistic(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.linear_model import LogisticRegression
 
-        clf = LogisticRegression(max_iter=1000)
+        clf = LogisticRegression(max_iter=10000, random_state=0)
+        clf.fit(X_t, y_t)
+        return clf
+    
+    def naive_bayes(self, X_t: np.ndarray, y_t: np.ndarray):
+        from sklearn.naive_bayes import GaussianNB
+
+        clf = GaussianNB()
         clf.fit(X_t, y_t)
         return clf
 
@@ -168,8 +176,15 @@ class Classification:
     def mlp(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.neural_network import MLPClassifier
 
-        clf = MLPClassifier()
+        clf = MLPClassifier(activation='relu', solver='lbfgs', alpha=0.0001, hidden_layer_sizes=(20), random_state=1)
         clf.fit(X_t, y_t)
+        print("Number of features:", clf.n_features_in_)
+        print("Number of layers:", clf.n_layers_)
+        print("Number of outputs:", clf.n_outputs_)
+        print("Number of iterations:", clf.n_iter_)
+        print("Activation function:", clf.out_activation_)
+        print("Class labels:", clf.classes_)
+        print("----")
         return clf
         
     def fit(self, X_t: np.ndarray, y_t: np.ndarray):
@@ -188,6 +203,7 @@ class Ensemble:
         self.mapping = {
             "bagging": self.bagging,
             "adaboost": self.adaboost,
+            "xgboost": self.xgboost
         }
         self.ensemble_cl = None
 
@@ -203,6 +219,13 @@ class Ensemble:
         from sklearn.ensemble import AdaBoostClassifier
 
         clf = AdaBoostClassifier(self.cl, n_estimators=10)
+        clf.fit(X_t, y_t)
+        return clf
+    
+    def xgboost(self, X_t: np.ndarray, y_t: np.ndarray):
+        from xgboost import XGBClassifier
+
+        clf = XGBClassifier()
         clf.fit(X_t, y_t)
         return clf
 
