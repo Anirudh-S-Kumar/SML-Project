@@ -1,10 +1,11 @@
+from sklearn.discriminant_analysis import StandardScaler
 import pipeline_components as pc
 import pandas as pd
 import numpy as np
 
 class Pipeline:
     def __init__(self, 
-            clustering_alg: str, 
+            clustering_alg: tuple[str, int], 
             dim_reduction_algs: list[tuple[str, int]], 
             outlier_detection_alg: str, 
             classification_alg: str, 
@@ -38,7 +39,9 @@ class Pipeline:
         # clustering
         print(f"Currently at clustering: {self.clustering_alg}")
         if self.clustering_alg:
-            cl = pc.Clustering(self.clustering_alg, 20)
+            alg = self.clustering_alg[0]
+            n_clusters = self.clustering_alg[1]
+            cl = pc.Clustering(alg, n_clusters)
             X_t, y_t = cl.transform(X_t, y_t)
 
         # dimensionality reduction
@@ -63,7 +66,7 @@ class Pipeline:
         self.cl = clfs.return_model()
 
         # ensemble
-        print(f"Currently at endsembling")
+        print(f"Currently at ensembling")
         if self.ensemble_algs:
             for alg in self.ensemble_algs:
                 ensemble = pc.Ensemble(self.cl, alg)
