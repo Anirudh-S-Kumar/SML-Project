@@ -29,7 +29,7 @@ class Clustering:
     def kmeans(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         from sklearn.cluster import KMeans
 
-        kmeans = KMeans(n_clusters=self.n_clusters, random_state=0).fit(X_t)
+        kmeans = KMeans(n_clusters=self.n_clusters).fit(X_t)
         y_pred = kmeans.predict(X_t)
 
         # removing outliers
@@ -163,13 +163,7 @@ class Classification:
         clf = LogisticRegression(max_iter=1000)
         clf.fit(X_t, y_t)
         return clf
-    
-    # def qda(self, X_t: np.ndarray, y_t: np.ndarray):
-    #     from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
-    #     clf = QuadraticDiscriminantAnalysis()
-    #     clf.fit(X_t, y_t)
-    #     return clf
     
     def mlp(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.neural_network import MLPClassifier
@@ -201,14 +195,14 @@ class Ensemble:
     def bagging(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.ensemble import BaggingClassifier
 
-        clf = BaggingClassifier(self.cl, n_estimators=10, random_state=0)
+        clf = BaggingClassifier(self.cl, n_estimators=10)
         clf.fit(X_t, y_t)
         return clf
     
     def adaboost(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.ensemble import AdaBoostClassifier
 
-        clf = AdaBoostClassifier(self.cl, n_estimators=10, random_state=0)
+        clf = AdaBoostClassifier(self.cl, n_estimators=10)
         clf.fit(X_t, y_t)
         return clf
 
