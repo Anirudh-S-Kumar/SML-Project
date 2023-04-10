@@ -175,13 +175,7 @@ class Classification:
         clf = GaussianNB()
         clf.fit(X_t, y_t)
         return clf
-    
-    # def qda(self, X_t: np.ndarray, y_t: np.ndarray):
-    #     from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
-    #     clf = QuadraticDiscriminantAnalysis()
-    #     clf.fit(X_t, y_t)
-    #     return clf
     
     def mlp(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.neural_network import MLPClassifier
@@ -221,14 +215,14 @@ class Ensemble:
     def bagging(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.ensemble import BaggingClassifier
 
-        clf = BaggingClassifier(self.cl, n_estimators=10, random_state=0)
+        clf = BaggingClassifier(self.cl, n_estimators=10)
         clf.fit(X_t, y_t)
         return clf
     
     def adaboost(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.ensemble import AdaBoostClassifier
 
-        clf = AdaBoostClassifier(self.cl, n_estimators=10, random_state=0)
+        clf = AdaBoostClassifier(self.cl, n_estimators=10)
         clf.fit(X_t, y_t)
         return clf
     
