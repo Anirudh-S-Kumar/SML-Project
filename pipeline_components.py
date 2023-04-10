@@ -22,6 +22,7 @@ class Clustering:
             "kmeans": self.kmeans,
             "agglomerative": self.agglomerative
         }
+        self.cl = None
 
     def transform(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         return self.mapping[self.algorithm](X_t, y_t)
@@ -30,13 +31,15 @@ class Clustering:
         from sklearn.cluster import KMeans
 
         kmeans = KMeans(n_clusters=self.n_clusters, random_state=0).fit(X_t)
+        self.cl = kmeans
         y_pred = kmeans.predict(X_t)
+        # Use the cluster labels as new feature values
+        print(f"Shape of X_t: {X_t.shape}")
+        print(f"Shape of y_pred: {y_pred.shape}")
+        X_t_kmeans = np.c_[X_t, y_pred]
+        print(f"Shape of X_t_kmeans: {X_t_kmeans.shape}")
 
-        # removing outliers
-        X_t_kmeans = X_t[y_pred == 1]
-        y_t_kmeans = y_t[y_pred == 1]
-
-        return X_t_kmeans, y_t_kmeans
+        return X_t_kmeans, y_pred
 
     def agglomerative(self, X_t: np.ndarray, y_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         from sklearn.cluster import AgglomerativeClustering
@@ -112,16 +115,16 @@ class DimReduction:
     def pca(self, X_t: np.ndarray, y_t: np.ndarray) -> np.ndarray:
         from sklearn.decomposition import PCA
 
-        pca = PCA(n_components=self.n_components)
+        pca = PCA(n_components=self.n_components, random_state=42)
         X_t_pca = pca.fit_transform(X_t)  
         self.dim_red = pca
 
-        return X_t_pca
+        return X_t_pca  
     
     def lda(self, X_t: np.ndarray, y_t: np.ndarray) -> np.ndarray:
         from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-        lda = LinearDiscriminantAnalysis()
+        lda = LinearDiscriminantAnalysis(n_components=self.n_components)
 
         if y_t is not None:
             X_t_lda = lda.fit_transform(X_t, y_t)
@@ -142,6 +145,7 @@ class Classification:
             "mlp": self.mlp,
             "naive_bayes": self.naive_bayes
         }
+        self.clf = None
 
     def rf(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.ensemble import RandomForestClassifier
@@ -161,7 +165,7 @@ class Classification:
     def logistic(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.linear_model import LogisticRegression
 
-        clf = LogisticRegression(max_iter=10000, random_state=0)
+        clf = LogisticRegression(max_iter=10000, random_state=42)
         clf.fit(X_t, y_t)
         return clf
     
