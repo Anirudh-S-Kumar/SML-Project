@@ -20,6 +20,7 @@ class Pipeline:
 
         self.standardizer = None
         self.cl = None
+        self.clus = None
         self.dim_red_objs = []
 
     # def standardize(X_t: np.ndarray) -> np.ndarray:
@@ -42,16 +43,17 @@ class Pipeline:
             alg = self.clustering_alg[0]
             n_clusters = self.clustering_alg[1]
             cl = pc.Clustering(alg, n_clusters)
-            X_t, y_t = cl.transform(X_t, y_t)
+            self.clus = cl
+            X_t = cl.transform(X_t, y_t)[0]
 
         # dimensionality reduction
         print(f"Currently at dim reduction")
-
         if self.dim_reduction_algs:
             for alg, n_components in self.dim_reduction_algs:
                 dr = pc.DimReduction(alg, n_components)
                 X_t = dr.transform(X_t, y_t)
                 self.dim_red_objs.append(dr)
+        print(f"X_t shape: {X_t.shape}")
 
         # outlier detection
         print(f"Currently at outlier removal: {self.outlier_detection_alg}")
@@ -95,6 +97,8 @@ class Pipeline:
         X_test = self.standardizer.transform(X_test)
         # X_test = standardize(X_test)
         
+        if self.clustering_alg:
+            X_test = self.clus.transform(X_test, None)[0]
         # if self.dim_reduction_alg_1:
         #     X_test = self.dim_red_1.dim_red.transform(X_test)
         # if self.dim_reduction_alg_2:
