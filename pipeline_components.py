@@ -180,7 +180,7 @@ class Classification:
     def mlp(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.neural_network import MLPClassifier
 
-        clf = MLPClassifier(activation='relu', solver='lbfgs', alpha=0.0001, hidden_layer_sizes=(20), random_state=1)
+        clf = MLPClassifier(activation='relu', solver='lbfgs', alpha=10, hidden_layer_sizes=(310), random_state=1)
         clf.fit(X_t, y_t)
         print("Number of features:", clf.n_features_in_)
         print("Number of layers:", clf.n_layers_)
