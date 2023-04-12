@@ -12,7 +12,7 @@ test_data = pd.read_csv('data/test.csv')
 
 pipeline = mc.Pipeline(
     clustering_alg=None,
-    dim_reduction_algs=[("pca", 100)],
+    dim_reduction_algs=[("pca", 255), ("lda", )],
     outlier_detection_alg=None,
     classification_alg="logistic",
     ensemble_alg=None
