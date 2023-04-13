@@ -180,7 +180,7 @@ class Classification:
     def mlp(self, X_t: np.ndarray, y_t: np.ndarray):
         from sklearn.neural_network import MLPClassifier
 
-        clf = MLPClassifier(activation='relu', solver='lbfgs', alpha=10, hidden_layer_sizes=(310), random_state=1)
+        clf = MLPClassifier(activation='relu', solver='lbfgs', alpha=10, hidden_layer_sizes=(319), random_state=1)
         clf.fit(X_t, y_t)
         print("Number of features:", clf.n_features_in_)
         print("Number of layers:", clf.n_layers_)
@@ -201,7 +201,7 @@ class Classification:
         return self.clf
 
 class Ensemble:
-    def __init__(self, cl, algorithm: Literal["bagging", "adaboost"]):
+    def __init__(self, cl, algorithm: Literal["bagging", "adaboost", "xgboost"]):
         self.algorithm = algorithm
         self.cl = cl
         self.mapping = {

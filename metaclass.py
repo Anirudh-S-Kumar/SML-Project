@@ -1,4 +1,5 @@
 from sklearn.discriminant_analysis import StandardScaler
+from sklearn.model_selection import cross_val_score
 import pipeline_components as pc
 import pandas as pd
 import numpy as np
@@ -74,14 +75,25 @@ class Pipeline:
                 ensemble = pc.Ensemble(self.cl, alg)
                 ensemble.fit(X_t, y_t)
                 self.cl = ensemble.return_model()
-
         print("Done!")
+
     
     def predict(self, X_t: np.ndarray) -> np.ndarray:
+        X_t = self.standardizer.transform(X_t)
+        # X_test = standardize(X_test)
+        
+        if self.clustering_alg:
+            X_t = self.clus.transform(X_t, None)[0]
+        # if self.dim_reduction_alg_1:
+        #     X_test = self.dim_red_1.dim_red.transform(X_test)
+        # if self.dim_reduction_alg_2:
+        #     X_test = self.dim_red_2.dim_red.transform(X_test)
+            # X_test = pc.DimReduction(self.dim_reduction_alg, 100).transform(X_test, None)
+        if self.dim_reduction_algs:
+            for dr in self.dim_red_objs:
+                X_t = dr.dim_red.transform(X_t)
+
         return self.cl.predict(X_t)
-    
-    def score(self, X_t: np.ndarray, y_t: np.ndarray) -> float:
-        return self.cl.score(X_t, y_t)
     
     def cross_validate(self, X_t: np.ndarray, y_t: np.ndarray, n_splits: int = 5) -> np.ndarray:
         from sklearn.model_selection import cross_val_score
@@ -94,19 +106,19 @@ class Pipeline:
 
         X_test = X_s.drop(['ID'], axis=1)
 
-        X_test = self.standardizer.transform(X_test)
-        # X_test = standardize(X_test)
+        # X_test = self.standardizer.transform(X_test)
+        # # X_test = standardize(X_test)
         
-        if self.clustering_alg:
-            X_test = self.clus.transform(X_test, None)[0]
-        # if self.dim_reduction_alg_1:
-        #     X_test = self.dim_red_1.dim_red.transform(X_test)
-        # if self.dim_reduction_alg_2:
-        #     X_test = self.dim_red_2.dim_red.transform(X_test)
-            # X_test = pc.DimReduction(self.dim_reduction_alg, 100).transform(X_test, None)
-        if self.dim_reduction_algs:
-            for dr in self.dim_red_objs:
-                X_test = dr.dim_red.transform(X_test)
+        # if self.clustering_alg:
+        #     X_test = self.clus.transform(X_test, None)[0]
+        # # if self.dim_reduction_alg_1:
+        # #     X_test = self.dim_red_1.dim_red.transform(X_test)
+        # # if self.dim_reduction_alg_2:
+        # #     X_test = self.dim_red_2.dim_red.transform(X_test)
+        #     # X_test = pc.DimReduction(self.dim_reduction_alg, 100).transform(X_test, None)
+        # if self.dim_reduction_algs:
+        #     for dr in self.dim_red_objs:
+        #         X_test = dr.dim_red.transform(X_test)
 
         y_pred = self.predict(X_test)
 
