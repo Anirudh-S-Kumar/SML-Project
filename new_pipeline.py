@@ -19,23 +19,22 @@ train_data = pd.read_csv('data/train.csv')
 X_t = train_data.drop(['category', 'ID'], axis=1)
 y_t = train_data['category']
 
+test_data = pd.read_csv('data/test.csv')
+
+
 
 
 if __name__ == "__main__":
     pipeline = Pipeline([
         ("PCA 300", PCA(n_components=300)),
         ("LDA 19", LinearDiscriminantAnalysis(n_components=19)),
-        ('Bagging', BaggingClassifier(base_estimator=MLPClassifier(activation='relu', 
-                                                                    solver='lbfgs', 
-                                                                    alpha=10, 
-                                                                    hidden_layer_sizes=(310), 
-                                                                    random_state=1,
-                                                                    max_iter=1000), 
-                                    n_estimators=10, random_state=1))
-      
+        ('Logistic Regression', LogisticRegression())
         ])
 
     pipeline.fit(X_t, y_t)
     print("Pipeline done")
     cross_val_scores=cross_val_score(pipeline, X_t, y_t, cv=5)
     print(cross_val_scores.mean(), cross_val_scores.std())
+
+    pipeline.predict(test_data)
+
